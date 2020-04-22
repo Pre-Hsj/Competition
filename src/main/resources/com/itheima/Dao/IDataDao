@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.Dao.IDataDao">
+
+    <!--定义封装了User和Data的resultMap-->
+    <resultMap id="dataUserMap" type="com.itheima.domian.Data">
+        <id property="Data_ID" column="Data_ID"></id>
+        <result column="UID" property="UID"></result>
+        <result column="Data_Introduce" property="Data_Introduce"></result>
+        <result column="Data_Resource" property="Data_Resource"></result>
+        <!--一对一的关系映射，配置封装user的内容-->
+        <association property="users" column="UID" javaType="com.itheima.domian.Users">
+            <id column="User_ID" property="User_ID" ></id>
+            <result column="User_Name" property="User_Name"></result>
+            <result column="User_Password" property="User_Password"></result>
+            <result column="User_Sex" property="User_Sex"></result>
+            <result column="User_Age" property="User_Age"></result>
+            <result column="User_Email" property="User_Email"></result>
+            <result column="User_TelephoneNumber" property="User_TelephoneNumber"></result>
+            <result column="User_Address" property="User_Address"></result>
+            <result column="User_Subject1" property="User_Subject1"></result>
+            <result column="User_Subject2" property="User_Subject2"></result>
+            <result column="User_Subject3" property="User_Subject3"></result>
+            <result column="User_Subject4" property="User_Subject4"></result>
+            <result column="User_Subject5" property="User_Subject5"></result>
+            <result column="User_Subject6" property="User_Subject6"></result>
+        </association>
+    </resultMap>
+    <!--查询所有-->
+    <select id="findAll" resultMap="dataUserMap">
+        select * from Data d , Users u where  u.User_ID=d.UID;
+    </select>
+
+    <!--根据主键查询单个Data，主键为Data_ID-->
+    <select id="findById" parameterType="java.lang.Integer" resultType="com.itheima.domian.Data">
+        select  * from Data where Data_ID = #{Data_ID};
+    </select>
+
+    <!--保存功能，即新增Data-->
+    <insert id="saveData" parameterType="com.itheima.domian.Data">
+        <!--配置插入操作后，获取插入操作的id-->
+        <selectKey keyProperty="Data_ID" keyColumn="Data_ID" resultType="integer" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into Data(UID,Data_Introduce,Data_Resource)
+        values (#{UID},#{Data_Introduce},#{Data_Resource});
+    </insert>
+
+    <!--更新Data-->
+    <update id="updateData" parameterType="com.itheima.domian.Data">
+        update Data set UID=#{UID},Data_Introduce=#{Data_Introduce},Data_Resource=#{Data_Resource}
+        where Data_ID=#{Data_ID}
+    </update>
+
+    <!--删除Data-->
+    <delete id="deleteData" parameterType="java.lang.Integer">
+        delete from Data where Data_ID = #{Data_ID};
+    </delete>
+
+    <!--模糊查询-->
+    <select id="findByName" parameterType="String" resultType="com.itheima.domian.Data">
+        select * from Data where Data_Introduce like #{introduce}
+        <!--select * from user where username like '%${value}%'-->
+    </select>
+
+    <!--根据ID查询用户信息及所有数据-->
+    <select id="findByID_BelongUser" parameterType="java.lang.Integer" resultMap="dataUserMap">
+         select * from Data d left outer join Users u on u.User_ID=d.UID where Data_ID = #{Data_ID}
+    </select>
+
+    <!--查询总记录条数-->
+    <select id="findTotal" resultType="integer">
+        select count(Data_ID) from Data;
+    </select>
+</mapper>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.itheima.Dao.IUserDao">
+
+    <!--定义User的resultMap-->
+    <resultMap id="userDataMap" type="com.itheima.domian.Users">
+        <id column="User_ID" property="User_ID" ></id>
+        <result column="User_Name" property="User_Name"></result>
+        <result column="User_Password" property="User_Password"></result>
+        <result column="User_Sex" property="User_Sex"></result>
+        <result column="User_Age" property="User_Age"></result>
+        <result column="User_Email" property="User_Email"></result>
+        <result column="User_TelephoneNumber" property="User_TelephoneNumber"></result>
+        <result column="User_Address" property="User_Address"></result>
+        <result column="User_Subject1" property="User_Subject1"></result>
+        <result column="User_Subject2" property="User_Subject2"></result>
+        <result column="User_Subject3" property="User_Subject3"></result>
+        <result column="User_Subject4" property="User_Subject4"></result>
+        <result column="User_Subject5" property="User_Subject5"></result>
+        <result column="User_Subject6" property="User_Subject6"></result>
+        <!--配置User对象中Data集合映射-->
+        <collection property="data" ofType="com.itheima.domian.Data">
+            <id property="Data_ID" column="Data_ID"></id>
+            <result column="UID" property="UID"></result>
+            <result column="Data_Introduce" property="Data_Introduce"></result>
+            <result column="Data_Resource" property="Data_Resource"></result>
+        </collection>
+    </resultMap>
+    <!--配置查询所有 -->
+    <select id="findAll" resultMap="userDataMap">
+        select * from Users u left outer join Data d on u.User_ID=d.UID
+    </select>
+
+    <!--根据主键查询单个用户，主键为User_ID-->
+    <select id="findById" parameterType="java.lang.Integer" resultType="com.itheima.domian.Users">
+        select  * from Users where User_ID = #{User_ID};
+    </select>
+
+    <!--保存功能，即新增对象-->
+    <insert id="saveUser" parameterType="com.itheima.domian.Users">
+        <!--配置插入操作后，获取插入操作的id-->
+        <selectKey keyProperty="User_ID" keyColumn="User_ID" resultType="integer" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        insert into Users(User_Name,User_Password,User_Sex,User_Age,User_Email,User_TelephoneNumber,User_Address,Subject1,Subject2,Subject3,Subject4,Subject5,Subject6)
+        values (#{User_Name},#{User_Password},#{User_Sex},#{User_Age},#{User_Email},#{User_TelephoneNumber},#{User_Address},#{Subject1},#{Subject2},#{Subject3},#{Subject4},#{Subject5},#{Subject6});
+    </insert>
+
+
+    <!--更新用户-->
+    <update id="updateUser" parameterType="com.itheima.domian.Users">
+        update Users set User_Name=#{User_Name},User_Password=#{User_Password},User_Sex=#{User_Sex},User_Age=#{User_Age},
+        User_Email=#{User_Email},User_TelephoneNumber=#{User_TelephoneNumber},User_Address=#{User_Address},Subject1=#{Subject1},
+        Subject2=#{Subject2},Subject3=#{Subject3},Subject4=#{Subject4},Subject5=#{Subject5},Subject6=#{Subject6}
+        where User_ID=#{User_ID}
+    </update>
+
+
+    <!--删除用户-->
+    <delete id="deleteUser" parameterType="java.lang.Integer">
+        delete from Users where User_ID = #{User_ID};
+    </delete>
+
+    <!--模糊查询-->
+    <select id="findByName" parameterType="String" resultType="com.itheima.domian.Users">
+        select * from Users where User_Name like #{name}
+        <!--select * from user where username like '%${value}%'-->
+    </select>
+
+    <!--根据ID查询用户信息及所有数据-->
+    <select id="findByID_AllData" parameterType="java.lang.Integer" resultMap="userDataMap">
+         select * from Users u left outer join Data d on u.User_ID=d.UID where User_ID = #{User_ID}
+    </select>
+
+    <!--根据ID查询用户信息及所有数据-->
+    <select id="findByName_AllData" parameterType="java.lang.String" resultMap="userDataMap">
+         select * from Users u left outer join Data d on u.User_ID=d.UID where User_Name = #{User_Name}
+    </select>
+    <!--查询总记录条数-->
+    <select id="findTotal" resultType="integer">
+        select count(User_ID) from Users;
+    </select>
+
+</mapper>
